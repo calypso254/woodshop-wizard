@@ -301,6 +301,7 @@ button:focus-visible {
   margin-top: 12px;
   border: 2px solid var(--muted);
   padding: 8px;
+  overflow: hidden;
   background:
     linear-gradient(#ffffff, #ffffff),
     repeating-linear-gradient(

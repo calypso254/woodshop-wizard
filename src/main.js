@@ -1,5 +1,3 @@
-import "./style.css";
-
 const UNIT_CONFIG = {
   in: {
     label: "in",
@@ -59,11 +57,11 @@ app.innerHTML = `
 
       <div class="field-grid">
         <label class="field">
-          Main Sheet Width <span class="unit-token" data-unit-token>in</span>
+          Sheet Width <span class="unit-token" data-unit-token>in</span>
           <input id="sheet-width" inputmode="decimal" type="number" min="0.01" />
         </label>
         <label class="field">
-          Main Sheet Height <span class="unit-token" data-unit-token>in</span>
+          Sheet Length <span class="unit-token" data-unit-token>in</span>
           <input id="sheet-height" inputmode="decimal" type="number" min="0.01" />
         </label>
         <label class="field">
@@ -103,16 +101,18 @@ app.innerHTML = `
 
       <div class="action-row">
         <button id="add-piece-btn" class="btn accent" type="button">Add Piece</button>
-        <button id="generate-btn" class="btn primary" type="button">Generate Layout</button>
-        <button id="clear-btn" class="btn ghost" type="button">Clear List</button>
       </div>
 
       <div id="piece-list" class="piece-list" aria-live="polite"></div>
+
+      <div class="action-row">
+        <button id="clear-btn" class="btn ghost" type="button">Clear List</button>
+        <button id="generate-btn" class="btn primary" type="button">Generate Layout</button>
+      </div>
     </section>
 
     <section class="card ad-slot" aria-label="Ad banner area">
-      <p>Ad banner container (horizontal). Place your Google AdSense unit here.</p>
-      <div class="ad-banner-placeholder">320 x 50 / 728 x 90</div>
+      <div class="ad-banner-placeholder">Please support us by disabling ad blockers.</div>
     </section>
 
     <section class="card results" aria-labelledby="results-title">
@@ -423,11 +423,16 @@ function findBestPlacement(piece, freeRects, kerf, allowRotation) {
   let best = null;
   for (const free of freeRects) {
     for (const option of orientations) {
-      const requiredW = option.width + kerf;
-      const requiredH = option.height + kerf;
-      if (requiredW > free.w || requiredH > free.h) {
+      const remainingW = free.w - option.width;
+      const remainingH = free.h - option.height;
+      if (remainingW < 0 || remainingH < 0) {
         continue;
       }
+      // Kerf is needed only when another cut can continue on that side.
+      const kerfX = remainingW > 0 ? Math.min(kerf, remainingW) : 0;
+      const kerfY = remainingH > 0 ? Math.min(kerf, remainingH) : 0;
+      const requiredW = option.width + kerfX;
+      const requiredH = option.height + kerfY;
       const shortFit = Math.min(free.w - requiredW, free.h - requiredH);
       const longFit = Math.max(free.w - requiredW, free.h - requiredH);
       const areaFit = free.w * free.h - requiredW * requiredH;
@@ -437,6 +442,8 @@ function findBestPlacement(piece, freeRects, kerf, allowRotation) {
         width: option.width,
         height: option.height,
         rotated: option.rotated,
+        kerfX,
+        kerfY,
         shortFit,
         longFit,
         areaFit,
@@ -485,8 +492,8 @@ function optimizeLayout(pieces, sheet, kerf, allowRotation) {
     const usedRect = {
       x: best.x,
       y: best.y,
-      w: best.width + kerf,
-      h: best.height + kerf,
+      w: best.width + best.kerfX,
+      h: best.height + best.kerfY,
     };
 
     const updatedFreeRects = [];
@@ -578,11 +585,14 @@ function renderChecklist() {
 
 function drawCanvas() {
   const ctx = elements.canvas.getContext("2d");
-  const shellWidth = Math.max(280, elements.canvasShell.clientWidth - 2);
+  const shellStyles = window.getComputedStyle(elements.canvasShell);
+  const paddingX =
+    Number.parseFloat(shellStyles.paddingLeft || "0") +
+    Number.parseFloat(shellStyles.paddingRight || "0");
+  const shellWidth = Math.max(240, Math.floor(elements.canvasShell.clientWidth - paddingX));
   const ratio = state.sheet.height / state.sheet.width;
-  const idealHeight = shellWidth * ratio + 34;
-  const maxHeight = Math.max(280, window.innerHeight * 0.58);
-  const cssHeight = Math.round(Math.min(maxHeight, Math.max(280, idealHeight)));
+  const idealHeight = shellWidth * ratio;
+  const cssHeight = Math.round(Math.min(460, Math.max(240, idealHeight)));
   const dpr = window.devicePixelRatio || 1;
 
   elements.canvas.style.width = `${shellWidth}px`;
