@@ -28,6 +28,7 @@ const state = {
   allowRotation: true,
   checklistMode: true,
   howManyFitMode: false,
+  guideCollapsed: false,
   setupCollapsed: false,
   pieces: [],
   nextPieceId: 1,
@@ -50,6 +51,9 @@ const state = {
 };
 
 const elements = {
+  guideTop: document.querySelector("#guide-top"),
+  guideTopBody: document.querySelector("#guide-top-body"),
+  guideCollapseBtn: document.querySelector("#guide-collapse-btn"),
   setup: document.querySelector("#setup"),
   setupBody: document.querySelector("#setup-body"),
   setupCollapseBtn: document.querySelector("#setup-collapse-btn"),
@@ -87,6 +91,7 @@ const elements = {
   shopPadExpression: document.querySelector("#shop-pad-expression"),
   shopPadDisplay: document.querySelector("#shop-pad-display"),
   shopPadClose: document.querySelector("#shop-pad-close"),
+  padTriggers: [...document.querySelectorAll("[data-pad-open]")],
   shopPadFields: [...document.querySelectorAll("[data-shop-pad]")],
 };
 
@@ -157,11 +162,26 @@ function renderFitModeUi() {
   elements.addPieceBtn.textContent = state.howManyFitMode ? "Calculate Fit" : "Add Piece";
 }
 
+function setGuideCollapsed(collapsed) {
+  state.guideCollapsed = collapsed;
+  elements.guideTop.classList.toggle("collapsed", collapsed);
+  elements.guideCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
+  elements.guideCollapseBtn.setAttribute(
+    "aria-label",
+    collapsed ? "Expand how to use section" : "Collapse how to use section"
+  );
+  elements.guideCollapseBtn.textContent = collapsed ? "+" : "-";
+}
+
 function setSetupCollapsed(collapsed, scrollToMap = false) {
   state.setupCollapsed = collapsed;
   elements.setup.classList.toggle("collapsed", collapsed);
   elements.setupCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
-  elements.setupCollapseBtn.textContent = collapsed ? "Expand setup" : "Collapse setup";
+  elements.setupCollapseBtn.setAttribute(
+    "aria-label",
+    collapsed ? "Expand setup and cut list" : "Collapse setup and cut list"
+  );
+  elements.setupCollapseBtn.textContent = collapsed ? "+" : "-";
   if (scrollToMap) {
     elements.results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -982,7 +1002,7 @@ function syncShopModeButton() {
 }
 
 function shouldUseShopPad() {
-  const mobileViewport = window.matchMedia("(max-width: 900px)").matches;
+  const mobileViewport = window.matchMedia("(max-width: 719px)").matches;
   const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
   const mobileUserAgent = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
   return mobileViewport && (coarsePointer || mobileUserAgent);
@@ -991,8 +1011,9 @@ function shouldUseShopPad() {
 function syncShopPadInputMode() {
   const usePad = shouldUseShopPad();
   for (const field of elements.shopPadFields) {
-    field.readOnly = usePad;
-    field.inputMode = usePad ? "none" : "decimal";
+    const nativeInputMode = field.getAttribute("inputmode") || "decimal";
+    field.readOnly = false;
+    field.inputMode = nativeInputMode;
   }
   if (!usePad && state.shopPad.open) {
     closeShopPad();
@@ -1197,6 +1218,10 @@ elements.setupCollapseBtn.addEventListener("click", () => {
   setSetupCollapsed(!state.setupCollapsed);
 });
 
+elements.guideCollapseBtn.addEventListener("click", () => {
+  setGuideCollapsed(!state.guideCollapsed);
+});
+
 elements.fitToggle.addEventListener("change", (event) => {
   state.howManyFitMode = event.target.checked;
   renderFitModeUi();
@@ -1282,13 +1307,20 @@ elements.bookmarkBtn.addEventListener("click", bookmarkHint);
 elements.shareBtn.addEventListener("click", shareLayout);
 elements.homeBtn.addEventListener("click", promptInstall);
 
-for (const field of elements.shopPadFields) {
-  field.addEventListener("pointerdown", (event) => {
+for (const trigger of elements.padTriggers) {
+  trigger.addEventListener("click", () => {
     if (!shouldUseShopPad()) {
       return;
     }
-    event.preventDefault();
-    openShopPad(field);
+    const targetId = trigger.dataset.padOpen;
+    if (!targetId) {
+      return;
+    }
+    const input = document.getElementById(targetId);
+    if (!(input instanceof HTMLInputElement)) {
+      return;
+    }
+    openShopPad(input);
   });
 }
 
@@ -1333,6 +1365,7 @@ window.addEventListener("resize", () => {
 });
 
 renderUnitUi();
+setGuideCollapsed(false);
 renderFitModeUi();
 setInputSteps();
 setInputsFromState();

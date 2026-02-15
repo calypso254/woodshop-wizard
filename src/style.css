@@ -115,8 +115,22 @@ p {
   gap: 8px;
 }
 
+.guide-top-body {
+  display: grid;
+  gap: 8px;
+}
+
+.guide-top.collapsed .guide-top-body {
+  display: none;
+}
+
+.guide-title-row {
+  margin-bottom: 0;
+}
+
 .guide-top h3 {
-  margin-top: 4px;
+  margin-top: 12px;
+  font-size: 1.04rem;
 }
 
 .title-row {
@@ -162,13 +176,21 @@ p {
   color: #fff;
 }
 
-.collapse-btn {
-  min-height: 38px;
-  border: 2px solid var(--muted);
-  background: #fff;
-  color: var(--text);
-  font-weight: 600;
-  padding: 0 12px;
+.collapse-icon-btn {
+  width: var(--touch);
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .setup.collapsed .setup-body {
@@ -190,6 +212,31 @@ p {
 
 .field-row .field-label {
   white-space: nowrap;
+}
+
+.field-input-wrap {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.pad-trigger {
+  display: none;
+  width: var(--touch);
+  min-width: var(--touch);
+  min-height: var(--touch);
+  border: 0;
+  background: transparent;
+  padding: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.pad-trigger img {
+  width: 26px;
+  height: 26px;
+  display: block;
 }
 
 .field-row .unit-token,
@@ -307,13 +354,13 @@ button:focus-visible {
 
 .btn.accent {
   background: var(--accent);
-  border-color: #d85449;
+  border-color: var(--accent);
   color: #fff;
 }
 
 .btn.active {
   background: var(--accent);
-  border-color: #d85449;
+  border-color: var(--accent);
 }
 
 .piece-list {
@@ -532,6 +579,16 @@ button:focus-visible {
   gap: 12px;
 }
 
+.about-columns h3 {
+  margin: 16px 0 6px;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+.about-columns > div h3:first-of-type {
+  margin-top: 10px;
+}
+
 .about-columns p + p,
 .about-columns h3 + p {
   margin-top: 8px;
@@ -553,7 +610,8 @@ button:focus-visible {
   background: rgba(20, 37, 40, 0.5);
   z-index: 50;
   display: none;
-  align-items: flex-end;
+  align-items: stretch;
+  justify-content: flex-end;
 }
 
 .shop-pad-overlay.open {
@@ -561,11 +619,20 @@ button:focus-visible {
 }
 
 .shop-pad-sheet {
-  width: min(720px, 100%);
-  margin: 0 auto;
+  width: min(420px, 100%);
+  margin: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   background: #fff;
   border: 2px solid var(--muted);
-  border-bottom: 0;
+  border-right: 0;
+  transform: translateX(100%);
+  transition: transform 0.2s ease;
+}
+
+.shop-pad-overlay.open .shop-pad-sheet {
+  transform: translateX(0);
 }
 
 .shop-pad-header {
@@ -608,6 +675,7 @@ button:focus-visible {
   gap: 8px;
   padding: 15px;
   border-top: 4px solid #006d77;
+  overflow-y: auto;
 }
 
 .pixel-btn {
@@ -670,6 +738,25 @@ button:focus-visible {
   padding: 14px;
   overflow: auto;
   background: #f4fafb;
+}
+
+@media (max-width: 719px) {
+  .field-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pad-trigger {
+    display: inline-flex;
+    order: 2;
+  }
+
+  .field-input-wrap input[type="number"] {
+    order: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
 }
 
 @media (min-width: 720px) {

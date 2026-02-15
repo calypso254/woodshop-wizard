@@ -83,25 +83,39 @@
         </section>
       </noscript>
 
-      <section class="card guide-top" aria-labelledby="guide-top-title">
-        <h2 id="guide-top-title">How to Use the Sheet Cut Wizard</h2>
-        <p>Transform your project dimensions into a professional-grade cutting plan in three simple steps.</p>
-        <p>
-          <strong>Set Your Material:</strong> Enter the dimensions of your primary sheet (e.g., a standard 48&quot; x 96&quot;
-          plywood sheet) and set your Blade Kerf to account for the width of your saw blade, usually 1/8&quot; or 3mm.
-        </p>
-        <p>
-          <strong>Build Your Cut List:</strong> Use the Shop Pad to quickly enter the quantity, width, and height of the
-          pieces you need. Our algorithm will magically nest them to minimize waste and save you money.
-        </p>
-        <p>
-          <strong>Generate &amp; Cut:</strong> Tap "Generate Layout" to see your visual Cut Map. Switch to "Shop Mode" to
-          follow the layout on your phone and tap each piece as it comes off the saw to mark it completed.
-        </p>
-        <h3>Why It Works</h3>
-        <p><strong>Precision Nesting:</strong> Automatically calculates efficient layouts for plywood, MDF, acrylic, and sheet goods.</p>
-        <p><strong>Interactive Progress:</strong> The visual checklist ensures you never lose your place or cut the same piece twice while in the shop.</p>
-        <p><strong>Mobile-First Design:</strong> Optimized for one-handed thumb navigation so you can keep your other hand on your tape measure.</p>
+      <section id="guide-top" class="card guide-top" aria-labelledby="guide-top-title">
+        <div class="title-row guide-title-row">
+          <h2 id="guide-top-title">How to Use the Sheet Cut Wizard</h2>
+          <button
+            id="guide-collapse-btn"
+            class="collapse-icon-btn"
+            type="button"
+            aria-controls="guide-top-body"
+            aria-expanded="true"
+            aria-label="Collapse how to use section"
+          >
+            -
+          </button>
+        </div>
+        <div id="guide-top-body" class="guide-top-body">
+          <p>Transform your project dimensions into a professional-grade cutting plan in three simple steps.</p>
+          <p>
+            <strong>Set Your Material:</strong> Enter the dimensions of your primary sheet (e.g., a standard 48&quot; x 96&quot;
+            plywood sheet) and set your Blade Kerf to account for the width of your saw blade, usually 1/8&quot; or 3mm.
+          </p>
+          <p>
+            <strong>Build Your Cut List:</strong> Use the Shop Pad to quickly enter the quantity, width, and height of the
+            pieces you need. Our algorithm will magically nest them to minimize waste and save you money.
+          </p>
+          <p>
+            <strong>Generate &amp; Cut:</strong> Tap "Generate Layout" to see your visual Cut Map. Switch to "Shop Mode" to
+            follow the layout on your phone and tap each piece as it comes off the saw to mark it completed.
+          </p>
+          <h3>Why It Works</h3>
+          <p><strong>Precision Nesting:</strong> Automatically calculates efficient layouts for plywood, MDF, acrylic, and sheet goods.</p>
+          <p><strong>Interactive Progress:</strong> The visual checklist ensures you never lose your place or cut the same piece twice while in the shop.</p>
+          <p><strong>Mobile-First Design:</strong> Optimized for one-handed thumb navigation so you can keep your other hand on your tape measure.</p>
+        </div>
       </section>
 
       <section id="setup" class="card setup" aria-labelledby="setup-title">
@@ -112,7 +126,16 @@
               <button class="unit-btn active" data-unit-btn="in" type="button">in</button>
               <button class="unit-btn" data-unit-btn="cm" type="button">cm</button>
             </div>
-            <button id="setup-collapse-btn" class="collapse-btn" type="button" aria-expanded="true">Collapse setup</button>
+            <button
+              id="setup-collapse-btn"
+              class="collapse-icon-btn"
+              type="button"
+              aria-controls="setup-body"
+              aria-expanded="true"
+              aria-label="Collapse setup and cut list"
+            >
+              -
+            </button>
           </div>
         </div>
 
@@ -120,41 +143,71 @@
           <div class="field-grid">
             <label class="field field-row">
               <span class="field-label">Sheet Width</span>
-              <input
-                id="sheet-width"
-                data-shop-pad
-                data-pad-label="Sheet Width"
-                inputmode="decimal"
-                type="number"
-                min="0.01"
-                value="48"
-              />
+              <span class="field-input-wrap">
+                <button
+                  class="pad-trigger"
+                  type="button"
+                  data-pad-open="sheet-width"
+                  aria-label="Open number pad for Sheet Width"
+                >
+                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                </button>
+                <input
+                  id="sheet-width"
+                  data-shop-pad
+                  data-pad-label="Sheet Width"
+                  inputmode="decimal"
+                  type="number"
+                  min="0.01"
+                  value="48"
+                />
+              </span>
               <span class="unit-token" data-unit-token>in</span>
             </label>
             <label class="field field-row">
               <span class="field-label">Sheet Length</span>
-              <input
-                id="sheet-height"
-                data-shop-pad
-                data-pad-label="Sheet Length"
-                inputmode="decimal"
-                type="number"
-                min="0.01"
-                value="96"
-              />
+              <span class="field-input-wrap">
+                <button
+                  class="pad-trigger"
+                  type="button"
+                  data-pad-open="sheet-height"
+                  aria-label="Open number pad for Sheet Length"
+                >
+                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                </button>
+                <input
+                  id="sheet-height"
+                  data-shop-pad
+                  data-pad-label="Sheet Length"
+                  inputmode="decimal"
+                  type="number"
+                  min="0.01"
+                  value="96"
+                />
+              </span>
               <span class="unit-token" data-unit-token>in</span>
             </label>
             <label class="field field-row">
               <span class="field-label">Blade Kerf</span>
-              <input
-                id="kerf"
-                data-shop-pad
-                data-pad-label="Blade Kerf"
-                inputmode="decimal"
-                type="number"
-                min="0"
-                value="0.125"
-              />
+              <span class="field-input-wrap">
+                <button
+                  class="pad-trigger"
+                  type="button"
+                  data-pad-open="kerf"
+                  aria-label="Open number pad for Blade Kerf"
+                >
+                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                </button>
+                <input
+                  id="kerf"
+                  data-shop-pad
+                  data-pad-label="Blade Kerf"
+                  inputmode="decimal"
+                  type="number"
+                  min="0"
+                  value="0.125"
+                />
+              </span>
               <span class="unit-token" data-unit-token>in</span>
             </label>
           </div>
@@ -183,17 +236,70 @@
             <div class="field-grid piece-grid">
               <label id="piece-qty-field" class="field field-row">
                 <span class="field-label">Quantity</span>
-                <input id="piece-qty" inputmode="numeric" type="number" min="1" step="1" value="1" />
+                <span class="field-input-wrap">
+                  <button
+                    class="pad-trigger"
+                    type="button"
+                    data-pad-open="piece-qty"
+                    aria-label="Open number pad for Piece Quantity"
+                  >
+                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                  </button>
+                  <input
+                    id="piece-qty"
+                    data-shop-pad
+                    data-pad-label="Piece Quantity"
+                    inputmode="numeric"
+                    type="number"
+                    min="1"
+                    step="1"
+                    value="1"
+                  />
+                </span>
                 <span class="field-suffix"></span>
               </label>
               <label class="field field-row">
                 <span class="field-label">Width</span>
-                <input id="piece-width" data-shop-pad data-pad-label="Piece Width" inputmode="decimal" type="number" min="0.01" />
+                <span class="field-input-wrap">
+                  <button
+                    class="pad-trigger"
+                    type="button"
+                    data-pad-open="piece-width"
+                    aria-label="Open number pad for Piece Width"
+                  >
+                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                  </button>
+                  <input
+                    id="piece-width"
+                    data-shop-pad
+                    data-pad-label="Piece Width"
+                    inputmode="decimal"
+                    type="number"
+                    min="0.01"
+                  />
+                </span>
                 <span class="unit-token" data-unit-token>in</span>
               </label>
               <label class="field field-row">
                 <span class="field-label">Height</span>
-                <input id="piece-height" data-shop-pad data-pad-label="Piece Height" inputmode="decimal" type="number" min="0.01" />
+                <span class="field-input-wrap">
+                  <button
+                    class="pad-trigger"
+                    type="button"
+                    data-pad-open="piece-height"
+                    aria-label="Open number pad for Piece Height"
+                  >
+                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+                  </button>
+                  <input
+                    id="piece-height"
+                    data-shop-pad
+                    data-pad-label="Piece Height"
+                    inputmode="decimal"
+                    type="number"
+                    min="0.01"
+                  />
+                </span>
                 <span class="unit-token" data-unit-token>in</span>
               </label>
             </div>
