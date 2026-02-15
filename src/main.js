@@ -42,11 +42,15 @@ const state = {
   shopPad: {
     open: false,
     target: null,
+    flow: "general",
     whole: "",
     decimal: "",
     editingDecimal: false,
     fraction: 0,
     fractionLabel: "",
+    manualFractionMode: false,
+    manualFractionNumerator: "",
+    manualFractionDenominator: "",
   },
 };
 
@@ -74,7 +78,6 @@ const elements = {
   exportBtn: document.querySelector("#export-btn"),
   clearBtn: document.querySelector("#clear-btn"),
   pieceList: document.querySelector("#piece-list"),
-  summaryBadge: document.querySelector("#summary-badge"),
   summaryStats: document.querySelector("#summary-stats"),
   results: document.querySelector("#results"),
   shopModeBtn: document.querySelector("#shop-mode-btn"),
@@ -85,13 +88,14 @@ const elements = {
   bookmarkBtn: document.querySelector("#bookmark-btn"),
   shareBtn: document.querySelector("#share-btn"),
   homeBtn: document.querySelector("#home-btn"),
+  setupPadBtn: document.querySelector("#setup-pad-btn"),
+  piecePadBtn: document.querySelector("#piece-pad-btn"),
   shopPadOverlay: document.querySelector("#shop-pad-overlay"),
   shopPadModal: document.querySelector("#shop-pad-modal"),
   shopPadTitle: document.querySelector("#shop-pad-title"),
-  shopPadExpression: document.querySelector("#shop-pad-expression"),
   shopPadDisplay: document.querySelector("#shop-pad-display"),
   shopPadClose: document.querySelector("#shop-pad-close"),
-  padTriggers: [...document.querySelectorAll("[data-pad-open]")],
+  shopPadNextBtn: document.querySelector('[data-pad-action="next"]'),
   shopPadFields: [...document.querySelectorAll("[data-shop-pad]")],
 };
 
@@ -177,10 +181,7 @@ function setSetupCollapsed(collapsed, scrollToMap = false) {
   state.setupCollapsed = collapsed;
   elements.setup.classList.toggle("collapsed", collapsed);
   elements.setupCollapseBtn.setAttribute("aria-expanded", String(!collapsed));
-  elements.setupCollapseBtn.setAttribute(
-    "aria-label",
-    collapsed ? "Expand setup and cut list" : "Collapse setup and cut list"
-  );
+  elements.setupCollapseBtn.setAttribute("aria-label", collapsed ? "Expand setup" : "Collapse setup");
   elements.setupCollapseBtn.textContent = collapsed ? "+" : "-";
   if (scrollToMap) {
     elements.results.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -213,9 +214,12 @@ function setUnit(nextUnit) {
   state.unit = nextUnit;
   clearLayoutState();
   renderUnitUi();
-  if (state.unit === "cm" && state.shopPad.fraction) {
+  if (state.unit === "cm" && (state.shopPad.fraction || state.shopPad.manualFractionMode)) {
     state.shopPad.fraction = 0;
     state.shopPad.fractionLabel = "";
+    state.shopPad.manualFractionMode = false;
+    state.shopPad.manualFractionNumerator = "";
+    state.shopPad.manualFractionDenominator = "";
     updateShopPadOutput();
   }
   setInputSteps();
@@ -542,9 +546,23 @@ function calculateMaxFitLayout(pieceWidth, pieceHeight, sheet, kerf, allowRotati
 
 function renderSummary() {
   if (!state.totals) {
-    elements.summaryBadge.textContent = "Awaiting layout";
     elements.summaryStats.innerHTML = `
-      <div class="empty">Generate a layout to see utilization, waste, and cut progress.</div>
+      <div class="stat-card">
+        <strong>0/0</strong>
+        <span>Pieces placed</span>
+      </div>
+      <div class="stat-card">
+        <strong>0/0</strong>
+        <span>Cuts completed</span>
+      </div>
+      <div class="stat-card">
+        <strong>0.0%</strong>
+        <span>Used</span>
+      </div>
+      <div class="stat-card">
+        <strong>100.0%</strong>
+        <span>Estimated waste</span>
+      </div>
     `;
     return;
   }
@@ -555,7 +573,6 @@ function renderSummary() {
   const utilization = state.totals.utilization.toFixed(1);
   const waste = Math.max(0, 100 - state.totals.utilization).toFixed(1);
 
-  elements.summaryBadge.textContent = `${utilization}% used`;
   elements.summaryStats.innerHTML = `
     <div class="stat-card">
       <strong>${totalPlaced}/${totalPieces}</strong>
@@ -564,6 +581,10 @@ function renderSummary() {
     <div class="stat-card">
       <strong>${cutDone}/${totalPlaced}</strong>
       <span>Cuts completed</span>
+    </div>
+    <div class="stat-card">
+      <strong>${utilization}%</strong>
+      <span>Used</span>
     </div>
     <div class="stat-card">
       <strong>${waste}%</strong>
@@ -851,74 +872,81 @@ function generateLayout() {
   runStandardLayout();
 }
 
-function exportAsPdf() {
+async function exportAsPdf() {
   if (!state.totals || !state.placements.length) {
     setStatus("Generate a layout before exporting to PDF.", true);
     return;
   }
-  const printWindow = window.open("", "_blank", "noopener,noreferrer");
-  if (!printWindow) {
-    setStatus("Allow popups to export as PDF.", true);
-    return;
+  try {
+    drawCanvas();
+    const { jsPDF } = await import("jspdf");
+    const unit = UNIT_CONFIG[state.unit].label;
+    const mapImage = elements.canvas.toDataURL("image/png", 1.0);
+    const isLandscape = elements.canvas.width >= elements.canvas.height;
+    const pdf = new jsPDF({
+      orientation: isLandscape ? "landscape" : "portrait",
+      unit: "pt",
+      format: "letter",
+      compress: true,
+    });
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const margin = 36;
+
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(16);
+    pdf.text("The Sheet Cut Wizard", margin, margin);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(10);
+    pdf.text(
+      `Utilization: ${state.totals.utilization.toFixed(1)}% | Sheet: ${formatForUi(state.sheet.width)} ${unit} x ${formatForUi(
+        state.sheet.height
+      )} ${unit}`,
+      margin,
+      margin + 18
+    );
+
+    const imgMaxW = pageWidth - margin * 2;
+    const imgMaxH = pageHeight - margin * 2 - 150;
+    const imgRatio = elements.canvas.width / elements.canvas.height;
+    let imgWidth = imgMaxW;
+    let imgHeight = imgWidth / imgRatio;
+    if (imgHeight > imgMaxH) {
+      imgHeight = imgMaxH;
+      imgWidth = imgHeight * imgRatio;
+    }
+    const imgX = (pageWidth - imgWidth) / 2;
+    const imgY = margin + 34;
+    pdf.addImage(mapImage, "PNG", imgX, imgY, imgWidth, imgHeight, undefined, "FAST");
+
+    let y = imgY + imgHeight + 20;
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(12);
+    pdf.text("Placed Parts", margin, y);
+    y += 14;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    const partLines = state.placements.map(
+      (piece) =>
+        `${piece.label}: ${formatForUi(piece.width)} ${unit} x ${formatForUi(piece.height)} ${unit}${piece.rotated ? " (rotated)" : ""}`
+    );
+    for (const line of partLines) {
+      if (y > pageHeight - margin) {
+        pdf.addPage();
+        y = margin;
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+      }
+      pdf.text(line, margin, y);
+      y += 11;
+    }
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    pdf.save(`sheet-cut-map-${stamp}.pdf`);
+    setStatus("PDF downloaded.");
+  } catch {
+    setStatus("Unable to export PDF right now.", true);
   }
-  const unit = UNIT_CONFIG[state.unit].label;
-  const mapImage = elements.canvas.toDataURL("image/png");
-  const piecesList = state.placements
-    .map(
-      (piece) =>
-        `<li>${piece.label}: ${formatForUi(piece.width)} ${unit} x ${formatForUi(piece.height)} ${unit}${
-          piece.rotated ? " (rotated)" : ""
-        }</li>`
-    )
-    .join("");
-  const sourceList = state.pieces
-    .map(
-      (piece) =>
-        `<li>${piece.label}: ${piece.quantity} pcs, ${formatForUi(piece.width)} ${unit} x ${formatForUi(piece.height)} ${unit}</li>`
-    )
-    .join("");
-  const html = `
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <title>The Sheet Cut Wizard - Export</title>
-        <style>
-          body { font-family: Inter, Arial, sans-serif; color: #1d2d30; margin: 24px; }
-          h1, h2 { font-family: "Space Grotesk", Arial, sans-serif; color: #006D77; margin: 0 0 8px; }
-          .meta { margin-bottom: 16px; }
-          .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
-          img { width: 100%; border: 2px solid #b5d2d8; }
-          ul { margin: 8px 0 0; padding-left: 18px; }
-        </style>
-      </head>
-      <body>
-        <h1>The Sheet Cut Wizard</h1>
-        <p class="meta">Utilization: ${state.totals.utilization.toFixed(1)}% | Sheet: ${formatForUi(
-          state.sheet.width
-        )} ${unit} x ${formatForUi(state.sheet.height)} ${unit}</p>
-        <div class="grid">
-          <section>
-            <h2>Visual Cut Map</h2>
-            <img src="${mapImage}" alt="Cut map" />
-          </section>
-          <section>
-            <h2>Cut List</h2>
-            <ul>${sourceList || "<li>How Many Fit mode used.</li>"}</ul>
-          </section>
-          <section>
-            <h2>Placed Parts</h2>
-            <ul>${piecesList}</ul>
-          </section>
-        </div>
-        <script>setTimeout(() => window.print(), 300);</script>
-      </body>
-    </html>
-  `;
-  printWindow.document.open();
-  printWindow.document.write(html);
-  printWindow.document.close();
-  setStatus("Export ready. Save as PDF from the print dialog.");
 }
 
 async function shareLayout() {
@@ -941,12 +969,42 @@ async function shareLayout() {
 }
 
 function bookmarkHint() {
+  const pageUrl = window.location.href;
+  const pageTitle = document.title;
+  try {
+    if (window.external && typeof window.external.AddFavorite === "function") {
+      window.external.AddFavorite(pageUrl, pageTitle);
+      setStatus("Bookmark dialog opened.");
+      return;
+    }
+    if (window.sidebar && typeof window.sidebar.addPanel === "function") {
+      window.sidebar.addPanel(pageTitle, pageUrl, "");
+      setStatus("Bookmark dialog opened.");
+      return;
+    }
+  } catch {
+    // Browser blocked direct bookmark API; fall back below.
+  }
   const isMac = navigator.platform.toLowerCase().includes("mac");
   const shortcut = isMac ? "Cmd + D" : "Ctrl + D";
-  setStatus(`Use ${shortcut} to bookmark The Sheet Cut Wizard.`);
+  navigator.clipboard
+    .writeText(pageUrl)
+    .then(() => {
+      setStatus(`Link copied. Press ${shortcut} to bookmark this page.`);
+    })
+    .catch(() => {
+      setStatus(`Press ${shortcut} to bookmark this page.`);
+    });
 }
 
 async function promptInstall() {
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+  if (isStandalone) {
+    setStatus("This tool is already installed on your home screen.");
+    return;
+  }
   if (state.deferredInstallPrompt) {
     state.deferredInstallPrompt.prompt();
     const choice = await state.deferredInstallPrompt.userChoice;
@@ -954,7 +1012,12 @@ async function promptInstall() {
     setStatus(choice?.outcome === "accepted" ? "Install prompt accepted." : "Install prompt dismissed.");
     return;
   }
-  setStatus("Use your browser menu and select 'Add to Home Screen' to install this tool.");
+  const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isiOS) {
+    setStatus("On iPhone/iPad: tap Share, then Add to Home Screen.");
+    return;
+  }
+  setStatus("Use your browser menu and choose Install App or Add to Home Screen.");
 }
 
 async function toggleShopMode() {
@@ -1020,34 +1083,105 @@ function syncShopPadInputMode() {
   }
 }
 
+function getPiecePadFlowFields() {
+  return state.howManyFitMode
+    ? [elements.pieceWidth, elements.pieceHeight]
+    : [elements.pieceQty, elements.pieceWidth, elements.pieceHeight];
+}
+
+function getShopPadFlowForInput(input) {
+  if (!input) {
+    return "general";
+  }
+  if ([elements.sheetWidth, elements.sheetHeight, elements.kerf].includes(input)) {
+    return "setup";
+  }
+  if ([elements.pieceQty, elements.pieceWidth, elements.pieceHeight].includes(input)) {
+    return "piece";
+  }
+  return "general";
+}
+
+function getShopPadActiveFieldsForFlow(flow) {
+  if (flow === "setup") {
+    return [elements.sheetWidth, elements.sheetHeight, elements.kerf];
+  }
+  if (flow === "piece") {
+    return getPiecePadFlowFields();
+  }
+  return elements.shopPadFields.filter((field) => !field.closest(".hidden") && !field.disabled);
+}
+
+function updateShopPadNextButtonLabel() {
+  if (!state.shopPad.open || !state.shopPad.target || !elements.shopPadNextBtn) {
+    return;
+  }
+  const activeFields = getShopPadActiveFieldsForFlow(state.shopPad.flow);
+  const currentIndex = activeFields.indexOf(state.shopPad.target);
+  const hasNext = currentIndex >= 0 && Boolean(activeFields[currentIndex + 1]);
+  elements.shopPadNextBtn.textContent = hasNext ? "NEXT" : "DONE";
+}
+
 function getShopPadValue() {
   const whole = state.shopPad.whole ? Number.parseInt(state.shopPad.whole, 10) : 0;
   const decimal = state.shopPad.decimal ? Number.parseFloat(`0.${state.shopPad.decimal}`) : 0;
-  return Number((whole + decimal + state.shopPad.fraction).toFixed(4));
+  let manualFraction = 0;
+  if (state.shopPad.manualFractionMode) {
+    const numerator = Number.parseFloat(state.shopPad.manualFractionNumerator);
+    const denominator = Number.parseFloat(state.shopPad.manualFractionDenominator);
+    if (Number.isFinite(numerator) && Number.isFinite(denominator) && denominator > 0) {
+      manualFraction = numerator / denominator;
+    }
+  }
+  return Number((whole + decimal + state.shopPad.fraction + manualFraction).toFixed(4));
 }
 
 function updateShopPadOutput() {
   if (!state.shopPad.target) {
     return;
   }
-  const hasInput = state.shopPad.whole || state.shopPad.decimal || state.shopPad.fraction || state.shopPad.editingDecimal;
-  const expressionBaseRaw =
-    state.shopPad.whole || state.shopPad.decimal || state.shopPad.editingDecimal
-      ? `${state.shopPad.whole || "0"}${state.shopPad.editingDecimal || state.shopPad.decimal ? `.${state.shopPad.decimal}` : ""}`
-      : "0";
-  const expressionBase = expressionBaseRaw === "0" && state.shopPad.fractionLabel ? "" : expressionBaseRaw;
-  const expression = state.shopPad.fractionLabel
-    ? `${expressionBase ? `${expressionBase} ` : ""}${state.shopPad.fractionLabel}`
-    : expressionBaseRaw;
+  const hasInput =
+    state.shopPad.whole ||
+    state.shopPad.decimal ||
+    state.shopPad.fraction ||
+    state.shopPad.editingDecimal ||
+    state.shopPad.manualFractionMode;
+
+  let expression = "0";
+  if (state.shopPad.manualFractionMode) {
+    const wholePart = state.shopPad.whole || "";
+    const numerator = state.shopPad.manualFractionNumerator || "";
+    const denominator = state.shopPad.manualFractionDenominator || "";
+    const fractionText = `${numerator || ""}/${denominator || ""}`;
+    expression = `${wholePart ? `${wholePart} ` : ""}${fractionText}`.trim() || "0";
+  } else {
+    const expressionBaseRaw =
+      state.shopPad.whole || state.shopPad.decimal || state.shopPad.editingDecimal
+        ? `${state.shopPad.whole || "0"}${state.shopPad.editingDecimal || state.shopPad.decimal ? `.${state.shopPad.decimal}` : ""}`
+        : "0";
+    const expressionBase = expressionBaseRaw === "0" && state.shopPad.fractionLabel ? "" : expressionBaseRaw;
+    expression = state.shopPad.fractionLabel
+      ? `${expressionBase ? `${expressionBase} ` : ""}${state.shopPad.fractionLabel}`
+      : expressionBaseRaw;
+  }
+
   const value = getShopPadValue();
-  elements.shopPadExpression.textContent = expression;
-  elements.shopPadDisplay.textContent = hasInput ? value.toString() : "0";
+  elements.shopPadDisplay.textContent = hasInput ? expression : "0";
   state.shopPad.target.value = value.toString();
 }
 
 function parseValueToShopPad(value) {
   if (!Number.isFinite(value) || value < 0) {
-    return { whole: "", decimal: "", editingDecimal: false, fraction: 0, fractionLabel: "" };
+    return {
+      whole: "",
+      decimal: "",
+      editingDecimal: false,
+      fraction: 0,
+      fractionLabel: "",
+      manualFractionMode: false,
+      manualFractionNumerator: "",
+      manualFractionDenominator: "",
+    };
   }
   const fixed = value.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
   const [wholePart, decimalPart = ""] = fixed.split(".");
@@ -1057,24 +1191,33 @@ function parseValueToShopPad(value) {
     editingDecimal: Boolean(decimalPart),
     fraction: 0,
     fractionLabel: "",
+    manualFractionMode: false,
+    manualFractionNumerator: "",
+    manualFractionDenominator: "",
   };
 }
 
 function openShopPad(input) {
   const parsed = parseValueToShopPad(Number.parseFloat(input.value));
+  const flow = getShopPadFlowForInput(input);
   state.shopPad = {
     open: true,
     target: input,
+    flow,
     whole: parsed.whole,
     decimal: parsed.decimal,
     editingDecimal: parsed.editingDecimal,
     fraction: parsed.fraction,
     fractionLabel: parsed.fractionLabel,
+    manualFractionMode: parsed.manualFractionMode,
+    manualFractionNumerator: parsed.manualFractionNumerator,
+    manualFractionDenominator: parsed.manualFractionDenominator,
   };
-  elements.shopPadTitle.textContent = `Shop Pad: ${input.dataset.padLabel || "Dimension"}`;
+  elements.shopPadTitle.textContent = input.dataset.padLabel || "Dimension";
   elements.shopPadOverlay.classList.add("open");
   elements.shopPadOverlay.setAttribute("aria-hidden", "false");
   updateShopPadOutput();
+  updateShopPadNextButtonLabel();
 }
 
 function closeShopPad() {
@@ -1085,14 +1228,21 @@ function closeShopPad() {
   state.shopPad = {
     open: false,
     target: null,
+    flow: "general",
     whole: "",
     decimal: "",
     editingDecimal: false,
     fraction: 0,
     fractionLabel: "",
+    manualFractionMode: false,
+    manualFractionNumerator: "",
+    manualFractionDenominator: "",
   };
   elements.shopPadOverlay.classList.remove("open");
   elements.shopPadOverlay.setAttribute("aria-hidden", "true");
+  if (elements.shopPadNextBtn) {
+    elements.shopPadNextBtn.textContent = "NEXT";
+  }
   if (activeTarget) {
     activeTarget.dispatchEvent(new Event("change", { bubbles: true }));
   }
@@ -1103,7 +1253,7 @@ function moveToNextShopPadField() {
     closeShopPad();
     return;
   }
-  const activeFields = elements.shopPadFields.filter((field) => !field.closest(".hidden") && !field.disabled);
+  const activeFields = getShopPadActiveFieldsForFlow(state.shopPad.flow);
   const currentIndex = activeFields.indexOf(state.shopPad.target);
   if (currentIndex < 0 || !activeFields[currentIndex + 1]) {
     closeShopPad();
@@ -1117,7 +1267,7 @@ function moveToPreviousShopPadField() {
     closeShopPad();
     return;
   }
-  const activeFields = elements.shopPadFields.filter((field) => !field.closest(".hidden") && !field.disabled);
+  const activeFields = getShopPadActiveFieldsForFlow(state.shopPad.flow);
   const currentIndex = activeFields.indexOf(state.shopPad.target);
   if (currentIndex <= 0) {
     closeShopPad();
@@ -1134,7 +1284,13 @@ function handleShopPadAction(button) {
   const fractionValue = button.dataset.padFraction;
   const action = button.dataset.padAction;
   if (digit) {
-    if (state.shopPad.editingDecimal) {
+    if (state.shopPad.manualFractionMode) {
+      if (!state.shopPad.manualFractionNumerator) {
+        state.shopPad.manualFractionNumerator = digit;
+      } else if (state.shopPad.manualFractionDenominator.length < 4) {
+        state.shopPad.manualFractionDenominator += digit;
+      }
+    } else if (state.shopPad.editingDecimal) {
       if (state.shopPad.decimal.length < 4) {
         state.shopPad.decimal += digit;
       }
@@ -1152,21 +1308,37 @@ function handleShopPadAction(button) {
     state.shopPad.editingDecimal = false;
     state.shopPad.fraction = Number.parseFloat(fractionValue);
     state.shopPad.fractionLabel = button.dataset.padFractionLabel || "";
+    state.shopPad.manualFractionMode = false;
+    state.shopPad.manualFractionNumerator = "";
+    state.shopPad.manualFractionDenominator = "";
     updateShopPadOutput();
     return;
   }
-  if (action === "double-zero") {
-    if (state.shopPad.editingDecimal) {
-      if (state.shopPad.decimal.length <= 2) {
-        state.shopPad.decimal += "00";
-      }
-    } else {
-      state.shopPad.whole = `${state.shopPad.whole}00`.replace(/^0+(\d)/, "$1");
+  if (action === "slash") {
+    if (state.shopPad.manualFractionMode) {
+      updateShopPadOutput();
+      return;
     }
+    state.shopPad.decimal = "";
+    state.shopPad.editingDecimal = false;
+    state.shopPad.fraction = 0;
+    state.shopPad.fractionLabel = "";
+    const source = state.shopPad.whole || "";
+    if (source) {
+      state.shopPad.manualFractionNumerator = source.slice(-1);
+      state.shopPad.whole = source.slice(0, -1);
+    } else {
+      state.shopPad.manualFractionNumerator = "";
+    }
+    state.shopPad.manualFractionDenominator = "";
+    state.shopPad.manualFractionMode = true;
     updateShopPadOutput();
     return;
   }
   if (action === "decimal") {
+    state.shopPad.manualFractionMode = false;
+    state.shopPad.manualFractionNumerator = "";
+    state.shopPad.manualFractionDenominator = "";
     state.shopPad.editingDecimal = true;
     state.shopPad.fraction = 0;
     state.shopPad.fractionLabel = "";
@@ -1174,7 +1346,17 @@ function handleShopPadAction(button) {
     return;
   }
   if (action === "backspace") {
-    if (state.shopPad.editingDecimal && state.shopPad.decimal.length > 0) {
+    if (state.shopPad.manualFractionMode) {
+      if (state.shopPad.manualFractionDenominator.length > 0) {
+        state.shopPad.manualFractionDenominator = state.shopPad.manualFractionDenominator.slice(0, -1);
+      } else if (state.shopPad.manualFractionNumerator) {
+        state.shopPad.whole = `${state.shopPad.whole}${state.shopPad.manualFractionNumerator}`;
+        state.shopPad.manualFractionNumerator = "";
+        state.shopPad.manualFractionMode = false;
+      } else {
+        state.shopPad.manualFractionMode = false;
+      }
+    } else if (state.shopPad.editingDecimal && state.shopPad.decimal.length > 0) {
       state.shopPad.decimal = state.shopPad.decimal.slice(0, -1);
       if (!state.shopPad.decimal) {
         state.shopPad.editingDecimal = false;
@@ -1196,6 +1378,9 @@ function handleShopPadAction(button) {
     state.shopPad.editingDecimal = false;
     state.shopPad.fraction = 0;
     state.shopPad.fractionLabel = "";
+    state.shopPad.manualFractionMode = false;
+    state.shopPad.manualFractionNumerator = "";
+    state.shopPad.manualFractionDenominator = "";
     updateShopPadOutput();
     return;
   }
@@ -1218,6 +1403,28 @@ elements.setupCollapseBtn.addEventListener("click", () => {
   setSetupCollapsed(!state.setupCollapsed);
 });
 
+elements.setupPadBtn.addEventListener("click", () => {
+  const setupFields = [elements.sheetWidth, elements.sheetHeight, elements.kerf];
+  const activeElement = document.activeElement;
+  const activeSetupField = setupFields.find((field) => field === activeElement);
+  const target = activeSetupField || setupFields[0];
+  if (target) {
+    openShopPad(target);
+  }
+});
+
+elements.piecePadBtn.addEventListener("click", () => {
+  const pieceFields = state.howManyFitMode
+    ? [elements.pieceWidth, elements.pieceHeight]
+    : [elements.pieceQty, elements.pieceWidth, elements.pieceHeight];
+  const activeElement = document.activeElement;
+  const activePieceField = pieceFields.find((field) => field === activeElement);
+  const target = activePieceField || pieceFields[0];
+  if (target) {
+    openShopPad(target);
+  }
+});
+
 elements.guideCollapseBtn.addEventListener("click", () => {
   setGuideCollapsed(!state.guideCollapsed);
 });
@@ -1225,6 +1432,14 @@ elements.guideCollapseBtn.addEventListener("click", () => {
 elements.fitToggle.addEventListener("change", (event) => {
   state.howManyFitMode = event.target.checked;
   renderFitModeUi();
+  if (state.shopPad.open && state.shopPad.flow === "piece") {
+    const pieceFields = getPiecePadFlowFields();
+    if (!pieceFields.includes(state.shopPad.target)) {
+      openShopPad(pieceFields[0]);
+    } else {
+      updateShopPadNextButtonLabel();
+    }
+  }
   setStatus(state.howManyFitMode ? "How Many Fit mode enabled." : "How Many Fit mode disabled.");
 });
 
@@ -1306,23 +1521,6 @@ elements.shopModeBtn.addEventListener("click", toggleShopMode);
 elements.bookmarkBtn.addEventListener("click", bookmarkHint);
 elements.shareBtn.addEventListener("click", shareLayout);
 elements.homeBtn.addEventListener("click", promptInstall);
-
-for (const trigger of elements.padTriggers) {
-  trigger.addEventListener("click", () => {
-    if (!shouldUseShopPad()) {
-      return;
-    }
-    const targetId = trigger.dataset.padOpen;
-    if (!targetId) {
-      return;
-    }
-    const input = document.getElementById(targetId);
-    if (!(input instanceof HTMLInputElement)) {
-      return;
-    }
-    openShopPad(input);
-  });
-}
 
 elements.shopPadClose.addEventListener("click", closeShopPad);
 elements.shopPadModal.addEventListener("click", (event) => {

@@ -13,6 +13,12 @@
     />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#006D77" />
+    <meta name="google-adsense-account" content="ca-pub-4860007029459271" />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4860007029459271"
+      crossorigin="anonymous"
+    ></script>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Woodshop Wizard Sheet Cut Wizard | Plywood Layout & Cut List Optimizer" />
     <meta
@@ -85,7 +91,9 @@
 
       <section id="guide-top" class="card guide-top" aria-labelledby="guide-top-title">
         <div class="title-row guide-title-row">
-          <h2 id="guide-top-title">How to Use the Sheet Cut Wizard</h2>
+          <div class="title-text">
+            <h2 id="guide-top-title">How to Use the Sheet Cut Wizard</h2>
+          </div>
           <button
             id="guide-collapse-btn"
             class="collapse-icon-btn"
@@ -120,19 +128,17 @@
 
       <section id="setup" class="card setup" aria-labelledby="setup-title">
         <div class="title-row">
-          <h2 id="setup-title">Setup &amp; Cut List</h2>
+          <div class="title-text">
+            <h2 id="setup-title">Setup</h2>
+          </div>
           <div class="title-controls">
-            <div class="unit-toggle" role="group" aria-label="Unit toggle">
-              <button class="unit-btn active" data-unit-btn="in" type="button">in</button>
-              <button class="unit-btn" data-unit-btn="cm" type="button">cm</button>
-            </div>
             <button
               id="setup-collapse-btn"
               class="collapse-icon-btn"
               type="button"
               aria-controls="setup-body"
               aria-expanded="true"
-              aria-label="Collapse setup and cut list"
+              aria-label="Collapse setup"
             >
               -
             </button>
@@ -140,76 +146,67 @@
         </div>
 
         <div id="setup-body" class="setup-body">
-          <div class="field-grid">
-            <label class="field field-row">
-              <span class="field-label">Sheet Width</span>
-              <span class="field-input-wrap">
-                <button
-                  class="pad-trigger"
-                  type="button"
-                  data-pad-open="sheet-width"
-                  aria-label="Open number pad for Sheet Width"
-                >
-                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                </button>
-                <input
-                  id="sheet-width"
-                  data-shop-pad
-                  data-pad-label="Sheet Width"
-                  inputmode="decimal"
-                  type="number"
-                  min="0.01"
-                  value="48"
-                />
+          <div class="setup-unit-row">
+            <div class="unit-toggle" role="group" aria-label="Unit toggle">
+              <button class="unit-btn active" data-unit-btn="in" type="button">in</button>
+              <button class="unit-btn" data-unit-btn="cm" type="button">cm</button>
+            </div>
+          </div>
+          <div class="setup-measurements">
+            <label class="field setup-measure-field">
+              <span class="field-label">Width</span>
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
+                  <input
+                    id="sheet-width"
+                    data-shop-pad
+                    data-pad-label="Sheet Width"
+                    inputmode="decimal"
+                    type="number"
+                    min="0.01"
+                    value="48"
+                  />
+                  <span class="input-unit" data-unit-token>in</span>
+                </span>
               </span>
-              <span class="unit-token" data-unit-token>in</span>
             </label>
-            <label class="field field-row">
-              <span class="field-label">Sheet Length</span>
-              <span class="field-input-wrap">
-                <button
-                  class="pad-trigger"
-                  type="button"
-                  data-pad-open="sheet-height"
-                  aria-label="Open number pad for Sheet Length"
-                >
-                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                </button>
-                <input
-                  id="sheet-height"
-                  data-shop-pad
-                  data-pad-label="Sheet Length"
-                  inputmode="decimal"
-                  type="number"
-                  min="0.01"
-                  value="96"
-                />
+            <label class="field setup-measure-field">
+              <span class="field-label">Length</span>
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
+                  <input
+                    id="sheet-height"
+                    data-shop-pad
+                    data-pad-label="Sheet Length"
+                    inputmode="decimal"
+                    type="number"
+                    min="0.01"
+                    value="96"
+                  />
+                  <span class="input-unit" data-unit-token>in</span>
+                </span>
               </span>
-              <span class="unit-token" data-unit-token>in</span>
             </label>
-            <label class="field field-row">
+            <label class="field setup-measure-field">
               <span class="field-label">Blade Kerf</span>
-              <span class="field-input-wrap">
-                <button
-                  class="pad-trigger"
-                  type="button"
-                  data-pad-open="kerf"
-                  aria-label="Open number pad for Blade Kerf"
-                >
-                  <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                </button>
-                <input
-                  id="kerf"
-                  data-shop-pad
-                  data-pad-label="Blade Kerf"
-                  inputmode="decimal"
-                  type="number"
-                  min="0"
-                  value="0.125"
-                />
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
+                  <input
+                    id="kerf"
+                    data-shop-pad
+                    data-pad-label="Blade Kerf"
+                    inputmode="decimal"
+                    type="number"
+                    min="0"
+                    value="0.125"
+                  />
+                  <span class="input-unit" data-unit-token>in</span>
+                </span>
               </span>
-              <span class="unit-token" data-unit-token>in</span>
             </label>
+            <button id="setup-pad-btn" class="pad-trigger setup-pad-trigger" type="button" aria-label="Open setup number pad">
+              <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+            </button>
           </div>
 
           <div class="toggle-row">
@@ -230,21 +227,21 @@
             </label>
             <p class="hint">When active, enter one size and calculate the maximum quantity that fits your sheet.</p>
           </div>
+        </div>
+      </section>
 
-          <div class="piece-entry">
-            <h3>Add Piece</h3>
-            <div class="field-grid piece-grid">
-              <label id="piece-qty-field" class="field field-row">
-                <span class="field-label">Quantity</span>
-                <span class="field-input-wrap">
-                  <button
-                    class="pad-trigger"
-                    type="button"
-                    data-pad-open="piece-qty"
-                    aria-label="Open number pad for Piece Quantity"
-                  >
-                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                  </button>
+      <section id="cut-list" class="card cut-list" aria-labelledby="cut-list-title">
+        <div class="title-row">
+          <div class="title-text">
+            <h2 id="cut-list-title">Add Piece</h2>
+          </div>
+        </div>
+        <div class="piece-entry">
+          <div class="piece-measurements">
+            <label id="piece-qty-field" class="field piece-measure-field">
+              <span class="field-label">Quantity</span>
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
                   <input
                     id="piece-qty"
                     data-shop-pad
@@ -256,19 +253,12 @@
                     value="1"
                   />
                 </span>
-                <span class="field-suffix"></span>
-              </label>
-              <label class="field field-row">
-                <span class="field-label">Width</span>
-                <span class="field-input-wrap">
-                  <button
-                    class="pad-trigger"
-                    type="button"
-                    data-pad-open="piece-width"
-                    aria-label="Open number pad for Piece Width"
-                  >
-                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                  </button>
+              </span>
+            </label>
+            <label class="field piece-measure-field">
+              <span class="field-label">Width</span>
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
                   <input
                     id="piece-width"
                     data-shop-pad
@@ -277,20 +267,14 @@
                     type="number"
                     min="0.01"
                   />
+                  <span class="input-unit" data-unit-token>in</span>
                 </span>
-                <span class="unit-token" data-unit-token>in</span>
-              </label>
-              <label class="field field-row">
-                <span class="field-label">Height</span>
-                <span class="field-input-wrap">
-                  <button
-                    class="pad-trigger"
-                    type="button"
-                    data-pad-open="piece-height"
-                    aria-label="Open number pad for Piece Height"
-                  >
-                    <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
-                  </button>
+              </span>
+            </label>
+            <label class="field piece-measure-field">
+              <span class="field-label">Height</span>
+              <span class="field-input-wrap compact-input-wrap">
+                <span class="input-core">
                   <input
                     id="piece-height"
                     data-shop-pad
@@ -299,40 +283,59 @@
                     type="number"
                     min="0.01"
                   />
+                  <span class="input-unit" data-unit-token>in</span>
                 </span>
-                <span class="unit-token" data-unit-token>in</span>
-              </label>
-            </div>
+              </span>
+            </label>
+            <button id="piece-pad-btn" class="pad-trigger piece-pad-trigger" type="button" aria-label="Open piece number pad">
+              <img src="number-pad-icon.svg" alt="" aria-hidden="true" />
+            </button>
           </div>
+        </div>
 
-          <div class="action-row compact add-row">
-            <button id="add-piece-btn" class="btn accent" type="button">Add Piece</button>
-          </div>
+        <div class="action-row compact add-row">
+          <button id="add-piece-btn" class="btn accent" type="button">Add Piece</button>
+        </div>
 
-          <div id="piece-list" class="piece-list" aria-live="polite">
-            <p class="empty">No pieces yet. Add parts to build your cut list.</p>
-          </div>
+        <div id="piece-list" class="piece-list" aria-live="polite">
+          <p class="empty">No pieces yet. Add parts to build your cut list.</p>
+        </div>
 
-          <div class="action-row compact generate-row">
-            <button id="generate-btn" class="btn primary" type="button">Generate Layout</button>
-          </div>
+        <div class="action-row compact generate-row">
+          <button id="generate-btn" class="btn primary" type="button">Generate Layout</button>
+        </div>
 
-          <div class="clear-row">
-            <button id="clear-btn" class="clear-link" type="button">Clear all pieces</button>
-          </div>
+        <div class="clear-row">
+          <button id="clear-btn" class="clear-link" type="button">Clear all pieces</button>
         </div>
       </section>
 
       <section id="results" class="card results" aria-labelledby="results-title">
         <div class="title-row">
-          <h2 id="results-title">Visual Cut Map</h2>
-          <span id="summary-badge" class="badge">Awaiting layout</span>
+          <div class="title-text">
+            <h2 id="results-title">Visual Cut Map</h2>
+          </div>
         </div>
         <p id="status-text" class="status-text" role="status">
           Set sheet size, add pieces, then generate your cut map.
         </p>
         <div id="summary-stats" class="summary-stats">
-          <div class="empty">Generate a layout to see utilization, waste, and cut progress.</div>
+          <div class="stat-card">
+            <strong>0/0</strong>
+            <span>Pieces placed</span>
+          </div>
+          <div class="stat-card">
+            <strong>0/0</strong>
+            <span>Cuts completed</span>
+          </div>
+          <div class="stat-card">
+            <strong>0.0%</strong>
+            <span>Used</span>
+          </div>
+          <div class="stat-card">
+            <strong>100.0%</strong>
+            <span>Estimated waste</span>
+          </div>
         </div>
         <div class="results-actions">
           <button id="export-btn" class="btn" type="button">Export as PDF</button>
@@ -351,15 +354,15 @@
       <section class="card quick-actions" aria-label="Quick actions">
         <div class="icon-actions">
           <button id="bookmark-btn" class="icon-btn" type="button" aria-label="Bookmark">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+            <img src="woodshop-wizard-bookmark-icon.svg" alt="" aria-hidden="true" />
             <span>Bookmark</span>
           </button>
           <button id="share-btn" class="icon-btn" type="button" aria-label="Share">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16a3 3 0 0 0-2.4 1.2L8.9 13a3.2 3.2 0 0 0 0-2l6.7-4.2A3 3 0 1 0 15 5a3.2 3.2 0 0 0 .1.8L8.4 10a3 3 0 1 0 0 4l6.7 4.2a3 3 0 1 0 2.9-2.2z"/></svg>
+            <img src="woodshop-wizard-share-icon.svg" alt="" aria-hidden="true" />
             <span>Share</span>
           </button>
           <button id="home-btn" class="icon-btn" type="button" aria-label="Add to Home Screen">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 10h3v11h5v-7h2v7h5V10h3z"/></svg>
+            <img src="woodshop-wizard-add-to-home-icon.svg" alt="" aria-hidden="true" />
             <span>Add to Home</span>
           </button>
         </div>
@@ -397,10 +400,9 @@
       <div id="shop-pad-overlay" class="shop-pad-overlay" aria-hidden="true">
         <div class="shop-pad-sheet" role="dialog" aria-modal="true" aria-labelledby="shop-pad-title">
           <div class="shop-pad-header">
-            <h3 id="shop-pad-title">Shop Pad</h3>
-            <button id="shop-pad-close" class="shop-pad-close" type="button">Done</button>
+            <h3 id="shop-pad-title">Dimension</h3>
+            <button id="shop-pad-close" class="shop-pad-close" type="button" aria-label="Close number pad">X</button>
           </div>
-          <p id="shop-pad-expression" class="shop-pad-expression">0</p>
           <p id="shop-pad-display" class="shop-pad-display">0</p>
           <div id="shop-pad-modal" class="shop-pad-modal">
             <button type="button" class="pixel-btn" data-pad-digit="7">7</button>
@@ -417,7 +419,7 @@
             <button type="button" class="pixel-btn fraction" data-pad-fraction="0.5" data-pad-fraction-label="1/2">1/2</button>
             <button type="button" class="pixel-btn" data-pad-digit="0">0</button>
             <button type="button" class="pixel-btn" data-pad-action="decimal">.</button>
-            <button type="button" class="pixel-btn" data-pad-action="double-zero">00</button>
+            <button type="button" class="pixel-btn" data-pad-action="slash">/</button>
             <button type="button" class="pixel-btn fraction" data-pad-fraction="0.75" data-pad-fraction-label="3/4">3/4</button>
             <button type="button" class="pixel-btn action-row-btn" data-pad-action="backspace">DEL</button>
             <button type="button" class="pixel-btn action-row-btn" data-pad-action="clear">CLR</button>

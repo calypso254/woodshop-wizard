@@ -134,19 +134,58 @@ p {
 }
 
 .title-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 10px;
+  row-gap: 8px;
   margin-bottom: 12px;
+}
+
+.title-text {
+  min-width: 0;
+}
+
+.title-text h2 {
+  overflow-wrap: anywhere;
 }
 
 .title-controls {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-end;
   gap: 8px;
+  min-width: max-content;
+}
+
+.setup-unit-row {
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.setup-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) var(--touch);
+  gap: 8px;
+  align-items: end;
+}
+
+.setup-measure-field .field-label {
+  font-size: 0.82rem;
+}
+
+.piece-measurements {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) var(--touch);
+  gap: 8px;
+  align-items: end;
+  margin-top: 10px;
+}
+
+.piece-measure-field .field-label {
+  font-size: 0.82rem;
 }
 
 .unit-toggle {
@@ -156,7 +195,8 @@ p {
 }
 
 .unit-btn {
-  min-height: 44px;
+  height: var(--touch);
+  min-height: var(--touch);
   min-width: 50px;
   border: 0;
   padding: 0 12px;
@@ -178,6 +218,7 @@ p {
 
 .collapse-icon-btn {
   width: var(--touch);
+  height: var(--touch);
   min-width: var(--touch);
   min-height: var(--touch);
   border: 2px solid var(--accent);
@@ -221,9 +262,31 @@ p {
   align-items: center;
 }
 
+.with-trigger-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.with-trigger-unit .input-core {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.compact-input-wrap {
+  display: block;
+}
+
+.input-core {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
 .pad-trigger {
   display: none;
   width: var(--touch);
+  height: var(--touch);
   min-width: var(--touch);
   min-height: var(--touch);
   border: 0;
@@ -234,9 +297,29 @@ p {
 }
 
 .pad-trigger img {
-  width: 26px;
-  height: 26px;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
+}
+
+.setup-pad-trigger {
+  display: inline-flex;
+}
+
+.piece-pad-trigger {
+  display: inline-flex;
+}
+
+.input-unit {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  color: #6f858a;
+  font-size: 0.82rem;
+  font-weight: 700;
+  pointer-events: none;
 }
 
 .field-row .unit-token,
@@ -250,6 +333,7 @@ p {
 
 input[type="number"] {
   width: 100%;
+  height: var(--touch);
   min-height: var(--touch);
   border: 2px solid var(--muted);
   border-radius: var(--radius);
@@ -258,6 +342,10 @@ input[type="number"] {
   font-weight: 600;
   color: var(--text);
   background: #fbfdff;
+}
+
+.input-core input[type="number"] {
+  padding-right: 34px;
 }
 
 input[type="number"]:focus,
@@ -321,6 +409,12 @@ button:focus-visible {
   padding-top: 10px;
 }
 
+.cut-list .piece-entry {
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+
 .piece-grid {
   margin-top: 10px;
 }
@@ -337,6 +431,7 @@ button:focus-visible {
 }
 
 .btn {
+  height: var(--touch);
   min-height: var(--touch);
   border: 2px solid var(--primary);
   border-radius: var(--radius);
@@ -563,10 +658,11 @@ button:focus-visible {
   font-weight: 700;
 }
 
-.icon-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+.icon-btn img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  display: block;
 }
 
 .about-tool {
@@ -610,8 +706,9 @@ button:focus-visible {
   background: rgba(20, 37, 40, 0.5);
   z-index: 50;
   display: none;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: flex-end;
+  padding: 14px;
 }
 
 .shop-pad-overlay.open {
@@ -619,16 +716,18 @@ button:focus-visible {
 }
 
 .shop-pad-sheet {
-  width: min(420px, 100%);
+  width: min(430px, calc(100vw - 28px));
   margin: 0;
-  height: 100%;
+  height: min(650px, calc(100vh - 28px));
+  max-height: calc(100vh - 28px);
   display: flex;
   flex-direction: column;
   background: #fff;
   border: 2px solid var(--muted);
-  border-right: 0;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
   transform: translateX(100%);
-  transition: transform 0.2s ease;
+  transition: transform 0.22s ease;
 }
 
 .shop-pad-overlay.open .shop-pad-sheet {
@@ -643,25 +742,21 @@ button:focus-visible {
 }
 
 .shop-pad-close {
-  border: 2px solid var(--muted);
-  background: #fff;
-  color: var(--text);
-  min-height: 38px;
-  padding: 0 10px;
+  width: var(--touch);
+  height: var(--touch);
+  min-height: var(--touch);
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: #fff;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.15rem;
   font-weight: 700;
+  line-height: 1;
+  padding: 0;
 }
 
-.shop-pad-expression,
 .shop-pad-display {
   margin: 8px 12px;
-}
-
-.shop-pad-expression {
-  color: #4a5f63;
-  font-size: 0.95rem;
-}
-
-.shop-pad-display {
   font-family: "Space Grotesk", sans-serif;
   color: var(--primary);
   font-weight: 700;
@@ -676,6 +771,7 @@ button:focus-visible {
   padding: 15px;
   border-top: 4px solid #006d77;
   overflow-y: auto;
+  flex: 1 1 auto;
 }
 
 .pixel-btn {
@@ -741,18 +837,28 @@ button:focus-visible {
 }
 
 @media (max-width: 719px) {
-  .field-input-wrap {
+  .setup-measurements,
+  .piece-measurements {
+    grid-template-columns: repeat(3, minmax(72px, 1fr)) var(--touch);
+  }
+
+  .setup-measure-field .field-label,
+  .piece-measure-field .field-label {
+    font-size: 0.78rem;
+  }
+
+  .field-row .field-input-wrap {
     display: flex;
     align-items: center;
     gap: 8px;
   }
 
-  .pad-trigger {
+  .field-row .pad-trigger {
     display: inline-flex;
     order: 2;
   }
 
-  .field-input-wrap input[type="number"] {
+  .field-row .field-input-wrap input[type="number"] {
     order: 1;
     flex: 1 1 auto;
     min-width: 0;
@@ -785,7 +891,8 @@ button:focus-visible {
   }
 
   .field-row input[type="number"] {
-    min-height: 42px;
+    height: var(--touch);
+    min-height: var(--touch);
   }
 
   .piece-grid .field-row {
@@ -797,7 +904,7 @@ button:focus-visible {
   }
 
   .summary-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .results-actions {
