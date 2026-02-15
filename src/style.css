@@ -66,9 +66,13 @@ p {
   background: linear-gradient(135deg, #ffffff 0%, #edf7f8 100%);
   display: grid;
   gap: 8px;
+  text-align: left;
 }
 
 .brand-lockup {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
   border-bottom: 2px solid rgba(0, 109, 119, 0.15);
   padding-bottom: 8px;
   margin-bottom: 2px;
