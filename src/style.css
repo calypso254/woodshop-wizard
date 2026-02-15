@@ -34,10 +34,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#app {
-  width: 100%;
-}
-
 .page {
   width: min(1020px, 100% - 20px);
   margin: 0 auto;
@@ -68,6 +64,27 @@ p {
 
 .hero {
   background: linear-gradient(135deg, #ffffff 0%, #edf7f8 100%);
+  display: grid;
+  gap: 8px;
+}
+
+.brand-lockup {
+  border-bottom: 2px solid rgba(0, 109, 119, 0.15);
+  padding-bottom: 8px;
+  margin-bottom: 2px;
+}
+
+.hero-logo {
+  display: block;
+  width: min(100%, 780px);
+  height: auto;
+}
+
+.no-js-card {
+  display: grid;
+  gap: 8px;
+  border-color: #ffd5cf;
+  background: #fff7f5;
 }
 
 .eyebrow {

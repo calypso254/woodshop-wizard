@@ -51,7 +51,276 @@
     <title>The Sheet Cut Wizard | Plywood Layout & Cut List Optimizer</title>
   </head>
   <body>
-    <div id="app"></div>
+    <main class="page">
+      <header class="card hero">
+        <div class="brand-lockup">
+          <img
+            class="hero-logo"
+            src="/woodshop-wizard-sheet-cut-wizard-logo.svg"
+            alt="Woodshop Wizard logo with Workshop Wizard wordmark and Sheet Cut Wizard subtitle"
+            width="2548"
+            height="520"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+        <p class="eyebrow">Woodshop Wizard</p>
+        <h1>The Sheet Cut Wizard</h1>
+        <p class="subhead">Optimize Plywood &amp; Sheet Layouts by Woodshop Wizard</p>
+        <p class="lead">
+          Enter your sheet dimensions and cut list to generate an optimized layout. Use the interactive map to track your
+          progress directly on the shop floor.
+        </p>
+      </header>
+
+      <noscript>
+        <section class="card no-js-card" aria-label="JavaScript disabled notice">
+          <h2>JavaScript is Off</h2>
+          <p>
+            All setup instructions and tool details are still visible for crawlability and reference. Enable JavaScript to
+            calculate nesting layouts and render the interactive cut map.
+          </p>
+        </section>
+      </noscript>
+
+      <section class="card guide-top" aria-labelledby="guide-top-title">
+        <h2 id="guide-top-title">How to Use the Sheet Cut Wizard</h2>
+        <p>Transform your project dimensions into a professional-grade cutting plan in three simple steps.</p>
+        <p>
+          <strong>Set Your Material:</strong> Enter the dimensions of your primary sheet (e.g., a standard 48&quot; x 96&quot;
+          plywood sheet) and set your Blade Kerf to account for the width of your saw blade, usually 1/8&quot; or 3mm.
+        </p>
+        <p>
+          <strong>Build Your Cut List:</strong> Use the Shop Pad to quickly enter the quantity, width, and height of the
+          pieces you need. Our algorithm will magically nest them to minimize waste and save you money.
+        </p>
+        <p>
+          <strong>Generate &amp; Cut:</strong> Tap "Generate Layout" to see your visual Cut Map. Switch to "Shop Mode" to
+          follow the layout on your phone and tap each piece as it comes off the saw to mark it completed.
+        </p>
+        <h3>Why It Works</h3>
+        <p><strong>Precision Nesting:</strong> Automatically calculates efficient layouts for plywood, MDF, acrylic, and sheet goods.</p>
+        <p><strong>Interactive Progress:</strong> The visual checklist ensures you never lose your place or cut the same piece twice while in the shop.</p>
+        <p><strong>Mobile-First Design:</strong> Optimized for one-handed thumb navigation so you can keep your other hand on your tape measure.</p>
+      </section>
+
+      <section id="setup" class="card setup" aria-labelledby="setup-title">
+        <div class="title-row">
+          <h2 id="setup-title">Setup &amp; Cut List</h2>
+          <div class="title-controls">
+            <div class="unit-toggle" role="group" aria-label="Unit toggle">
+              <button class="unit-btn active" data-unit-btn="in" type="button">in</button>
+              <button class="unit-btn" data-unit-btn="cm" type="button">cm</button>
+            </div>
+            <button id="setup-collapse-btn" class="collapse-btn" type="button" aria-expanded="true">Collapse setup</button>
+          </div>
+        </div>
+
+        <div id="setup-body" class="setup-body">
+          <div class="field-grid">
+            <label class="field field-row">
+              <span class="field-label">Sheet Width</span>
+              <input
+                id="sheet-width"
+                data-shop-pad
+                data-pad-label="Sheet Width"
+                inputmode="decimal"
+                type="number"
+                min="0.01"
+                value="48"
+              />
+              <span class="unit-token" data-unit-token>in</span>
+            </label>
+            <label class="field field-row">
+              <span class="field-label">Sheet Length</span>
+              <input
+                id="sheet-height"
+                data-shop-pad
+                data-pad-label="Sheet Length"
+                inputmode="decimal"
+                type="number"
+                min="0.01"
+                value="96"
+              />
+              <span class="unit-token" data-unit-token>in</span>
+            </label>
+            <label class="field field-row">
+              <span class="field-label">Blade Kerf</span>
+              <input
+                id="kerf"
+                data-shop-pad
+                data-pad-label="Blade Kerf"
+                inputmode="decimal"
+                type="number"
+                min="0"
+                value="0.125"
+              />
+              <span class="unit-token" data-unit-token>in</span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <label class="switch-label">
+              <input id="rotation-toggle" type="checkbox" checked />
+              Allow rotation for better fit
+            </label>
+            <label class="switch-label">
+              <input id="checklist-toggle" type="checkbox" checked />
+              Checklist mode on map taps
+            </label>
+          </div>
+
+          <div class="fit-toggle-row">
+            <label class="switch-label">
+              <input id="fit-toggle" type="checkbox" />
+              How Many Fit? mode
+            </label>
+            <p class="hint">When active, enter one size and calculate the maximum quantity that fits your sheet.</p>
+          </div>
+
+          <div class="piece-entry">
+            <h3>Add Piece</h3>
+            <div class="field-grid piece-grid">
+              <label id="piece-qty-field" class="field field-row">
+                <span class="field-label">Quantity</span>
+                <input id="piece-qty" inputmode="numeric" type="number" min="1" step="1" value="1" />
+                <span class="field-suffix"></span>
+              </label>
+              <label class="field field-row">
+                <span class="field-label">Width</span>
+                <input id="piece-width" data-shop-pad data-pad-label="Piece Width" inputmode="decimal" type="number" min="0.01" />
+                <span class="unit-token" data-unit-token>in</span>
+              </label>
+              <label class="field field-row">
+                <span class="field-label">Height</span>
+                <input id="piece-height" data-shop-pad data-pad-label="Piece Height" inputmode="decimal" type="number" min="0.01" />
+                <span class="unit-token" data-unit-token>in</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="action-row compact add-row">
+            <button id="add-piece-btn" class="btn accent" type="button">Add Piece</button>
+          </div>
+
+          <div id="piece-list" class="piece-list" aria-live="polite">
+            <p class="empty">No pieces yet. Add parts to build your cut list.</p>
+          </div>
+
+          <div class="action-row compact generate-row">
+            <button id="generate-btn" class="btn primary" type="button">Generate Layout</button>
+          </div>
+
+          <div class="clear-row">
+            <button id="clear-btn" class="clear-link" type="button">Clear all pieces</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="results" class="card results" aria-labelledby="results-title">
+        <div class="title-row">
+          <h2 id="results-title">Visual Cut Map</h2>
+          <span id="summary-badge" class="badge">Awaiting layout</span>
+        </div>
+        <p id="status-text" class="status-text" role="status">
+          Set sheet size, add pieces, then generate your cut map.
+        </p>
+        <div id="summary-stats" class="summary-stats">
+          <div class="empty">Generate a layout to see utilization, waste, and cut progress.</div>
+        </div>
+        <div class="results-actions">
+          <button id="export-btn" class="btn" type="button">Export as PDF</button>
+          <button id="shop-mode-btn" class="btn primary shop-btn" type="button">Enter Shop Mode</button>
+        </div>
+        <div class="canvas-shell" id="canvas-shell">
+          <canvas id="cut-canvas" aria-label="Sheet layout visualization">
+            Your browser does not support canvas. Use the setup and cut list sections to review project details.
+          </canvas>
+        </div>
+        <div id="checklist-items" class="checklist-items">
+          <p class="empty">Checklist appears after generating a layout.</p>
+        </div>
+      </section>
+
+      <section class="card quick-actions" aria-label="Quick actions">
+        <div class="icon-actions">
+          <button id="bookmark-btn" class="icon-btn" type="button" aria-label="Bookmark">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z" /></svg>
+            <span>Bookmark</span>
+          </button>
+          <button id="share-btn" class="icon-btn" type="button" aria-label="Share">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 16a3 3 0 0 0-2.4 1.2L8.9 13a3.2 3.2 0 0 0 0-2l6.7-4.2A3 3 0 1 0 15 5a3.2 3.2 0 0 0 .1.8L8.4 10a3 3 0 1 0 0 4l6.7 4.2a3 3 0 1 0 2.9-2.2z"/></svg>
+            <span>Share</span>
+          </button>
+          <button id="home-btn" class="icon-btn" type="button" aria-label="Add to Home Screen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 10h3v11h5v-7h2v7h5V10h3z"/></svg>
+            <span>Add to Home</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="card about-tool" aria-labelledby="about-tool-title">
+        <h2 id="about-tool-title">The Sheet Cut Wizard: Smart Plywood Layouts for Real Woodshops</h2>
+        <div class="about-columns">
+          <div>
+            <p>
+              Stop sketching cut plans on scrap wood and start building more efficiently with the Sheet Cut Wizard by
+              Woodshop Wizard. Whether you are breaking down a standard 4x8 sheet of plywood for custom cabinetry or
+              planning a weekend DIY project with MDF or acrylic, our tool does the math for you.
+            </p>
+            <h3>Why Woodworkers Love the Sheet Cut Wizard</h3>
+            <p><strong>Precision Optimization:</strong> Our algorithm calculates the most efficient nesting of parts to minimize waste and save you money on expensive sheet goods.</p>
+            <p><strong>Interactive Shop Floor Checklist:</strong> Unlike static PDFs, our Visual Cut Map is interactive. Simply tap a piece on your mobile screen as you cut it to track your progress in real-time.</p>
+            <p><strong>Blade Kerf Accuracy:</strong> Account for your saw blade's thickness (kerf) in your layout to ensure every part is sized perfectly the first time.</p>
+            <p><strong>Mobile-First Design:</strong> Built for one-handed use in a dusty shop, the Sheet Cut Wizard features large touch targets and a clear interface, no complex CAD software required.</p>
+          </div>
+          <div>
+            <h3>How to Use the Sheet Cut Wizard</h3>
+            <p><strong>Set Your Sheet Size:</strong> Enter your material dimensions (e.g., 48&quot; x 96&quot; plywood).</p>
+            <p><strong>Define Your Blade Kerf:</strong> Enter your saw blade width (standard is 1/8&quot; or 3mm).</p>
+            <p><strong>Input Your Parts:</strong> Add the quantity, width, and height of every piece in your cut list.</p>
+            <p><strong>Magic Layout:</strong> Hit "Generate" to see your optimized Plywood Cut Map.</p>
+            <p><strong>Start Cutting:</strong> Switch to "Shop Mode" to check off pieces as they come off the saw.</p>
+            <h3>Quick Tips for Best Results</h3>
+            <p><strong>Grain Direction:</strong> If your project requires matching wood grain, remember to orient your dimensions (Width vs. Height) consistently before generating the layout.</p>
+            <p><strong>Save Your Scraps:</strong> Use the Sheet Cut Wizard to see if your project can fit on smaller off-cuts before buying a fresh sheet of lumber.</p>
+          </div>
+        </div>
+      </section>
+
+      <div id="shop-pad-overlay" class="shop-pad-overlay" aria-hidden="true">
+        <div class="shop-pad-sheet" role="dialog" aria-modal="true" aria-labelledby="shop-pad-title">
+          <div class="shop-pad-header">
+            <h3 id="shop-pad-title">Shop Pad</h3>
+            <button id="shop-pad-close" class="shop-pad-close" type="button">Done</button>
+          </div>
+          <p id="shop-pad-expression" class="shop-pad-expression">0</p>
+          <p id="shop-pad-display" class="shop-pad-display">0</p>
+          <div id="shop-pad-modal" class="shop-pad-modal">
+            <button type="button" class="pixel-btn" data-pad-digit="7">7</button>
+            <button type="button" class="pixel-btn" data-pad-digit="8">8</button>
+            <button type="button" class="pixel-btn" data-pad-digit="9">9</button>
+            <button type="button" class="pixel-btn fraction" data-pad-fraction="0.125" data-pad-fraction-label="1/8">1/8</button>
+            <button type="button" class="pixel-btn" data-pad-digit="4">4</button>
+            <button type="button" class="pixel-btn" data-pad-digit="5">5</button>
+            <button type="button" class="pixel-btn" data-pad-digit="6">6</button>
+            <button type="button" class="pixel-btn fraction" data-pad-fraction="0.25" data-pad-fraction-label="1/4">1/4</button>
+            <button type="button" class="pixel-btn" data-pad-digit="1">1</button>
+            <button type="button" class="pixel-btn" data-pad-digit="2">2</button>
+            <button type="button" class="pixel-btn" data-pad-digit="3">3</button>
+            <button type="button" class="pixel-btn fraction" data-pad-fraction="0.5" data-pad-fraction-label="1/2">1/2</button>
+            <button type="button" class="pixel-btn" data-pad-digit="0">0</button>
+            <button type="button" class="pixel-btn" data-pad-action="decimal">.</button>
+            <button type="button" class="pixel-btn" data-pad-action="double-zero">00</button>
+            <button type="button" class="pixel-btn fraction" data-pad-fraction="0.75" data-pad-fraction-label="3/4">3/4</button>
+            <button type="button" class="pixel-btn action-row-btn" data-pad-action="backspace">DEL</button>
+            <button type="button" class="pixel-btn action-row-btn" data-pad-action="clear">CLR</button>
+            <button type="button" class="pixel-btn action-row-btn" data-pad-action="prev">PREV</button>
+            <button type="button" class="pixel-btn action-row-btn next" data-pad-action="next">NEXT</button>
+          </div>
+        </div>
+      </div>
+    </main>
     <script type="module" src="./src/main.js"></script>
   </body>
 </html>
