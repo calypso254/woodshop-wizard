@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Woodshop Wizard Miter Cut Wizard is a mobile-friendly trim calculator for baseboards and crown molding. Dial in miter and bevel settings for inside and outside corners fast."
+    />
+    <meta
+      name="keywords"
+      content="Woodshop Wizard, Miter Cut Wizard, compound miter calculator, crown molding calculator, baseboard miter angle, saw bevel settings"
+    />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#006D77" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Woodshop Wizard Miter Cut Wizard | Crown & Baseboard Saw Settings" />
+    <meta
+      property="og:description"
+      content="Calculate compound miter saw settings for baseboards and crown molding with a mobile-first interface built for real workshop use."
+    />
+    <meta property="og:site_name" content="Woodshop Wizard Miter Cut Wizard" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Woodshop Wizard Miter Cut Wizard | Crown & Baseboard Saw Settings" />
+    <meta
+      property="twitter:description"
+      content="Mobile-first miter and bevel settings for trim work. Includes inside/outside corner logic and spring-angle presets."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./src/style.css" />
+    <title>Woodshop Wizard Miter Cut Wizard | Crown & Baseboard Saw Settings</title>
+  </head>
+  <body>
+    <main class="page miter-page">
+      <header class="card hero">
+        <div class="brand-lockup">
+          <picture>
+            <source srcset="woodshop-wizard-sheet-cut-wizard-logo.svg" type="image/svg+xml" />
+            <img
+              class="hero-logo"
+              src="woodshop-wizard-sheet-cut-wizard-logo.png"
+              alt="Woodshop Wizard logo"
+              width="2048"
+              height="403"
+              loading="eager"
+              decoding="async"
+            />
+          </picture>
+        </div>
+        <p class="eyebrow">Trim Layout Utility</p>
+        <h1 class="miter-title">Miter Cut Wizard</h1>
+        <p class="lead">
+          Calculate miter and bevel settings for baseboards and crown molding. Built for one-handed use on dusty shop floors.
+        </p>
+        <div class="miter-nav-links">
+          <a class="btn btn-link" href="index.html">Open Sheet Cut Wizard</a>
+          <a class="btn primary btn-link" href="#miter-setup">Jump to Miter Setup</a>
+        </div>
+      </header>
+
+      <noscript>
+        <section class="card no-js-card" aria-label="JavaScript disabled notice">
+          <h2>JavaScript is Off</h2>
+          <p>
+            The page content is still available, but angle calculations and live graphics require JavaScript. Enable it to
+            use the interactive wizard.
+          </p>
+        </section>
+      </noscript>
+
+      <section id="miter-setup" class="card miter-setup" aria-labelledby="miter-setup-title">
+        <div class="title-row">
+          <div class="title-text">
+            <h2 id="miter-setup-title">Miter Setup</h2>
+          </div>
+        </div>
+        <div class="miter-toggle-stack">
+          <div class="miter-toggle-group">
+            <p class="field-label-inline">Material</p>
+            <div class="unit-toggle miter-toggle" role="group" aria-label="Material type">
+              <button class="unit-btn active" data-material-btn="baseboard" type="button">Baseboard / Flat</button>
+              <button class="unit-btn" data-material-btn="crown" type="button">Crown Molding</button>
+            </div>
+          </div>
+          <div class="miter-toggle-group">
+            <p class="field-label-inline">Corner Type</p>
+            <div class="unit-toggle miter-toggle" role="group" aria-label="Corner type">
+              <button class="unit-btn active" data-corner-btn="inside" type="button">Inside Corner</button>
+              <button class="unit-btn" data-corner-btn="outside" type="button">Outside Corner</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="miter-fields">
+          <label class="field">
+            <span class="field-label">Measured Wall Angle</span>
+            <div class="field-input-wrap compact-input-wrap">
+              <span class="input-core">
+                <input
+                  id="wall-angle"
+                  class="miter-angle-input"
+                  inputmode="decimal"
+                  type="number"
+                  min="45"
+                  max="180"
+                  step="0.1"
+                  value="90"
+                />
+                <span class="input-unit">deg</span>
+              </span>
+            </div>
+          </label>
+          <label id="spring-angle-field" class="field hidden">
+            <span class="field-label">Spring Angle Preset</span>
+            <select id="spring-angle" class="miter-select">
+              <option value="38">38deg (Standard)</option>
+              <option value="45">45deg</option>
+              <option value="52">52deg</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section class="card results miter-results" aria-labelledby="miter-results-title">
+        <div class="title-row">
+          <div class="title-text">
+            <h2 id="miter-results-title">Saw Settings</h2>
+          </div>
+        </div>
+        <p id="status-text" class="status-text" role="status">Set your corner details to calculate saw settings.</p>
+        <div class="miter-output-grid">
+          <article class="stat-card miter-piece-card" aria-label="Left side piece settings">
+            <h3>Left Side Piece</h3>
+            <p class="miter-setting"><span>Miter</span><strong id="left-miter">--</strong></p>
+            <p class="miter-setting"><span>Bevel</span><strong id="left-bevel">--</strong></p>
+            <p class="miter-orientation">Saw Fence: Place TOP against fence.</p>
+          </article>
+          <article class="stat-card miter-piece-card" aria-label="Right side piece settings">
+            <h3>Right Side Piece</h3>
+            <p class="miter-setting"><span>Miter</span><strong id="right-miter">--</strong></p>
+            <p class="miter-setting"><span>Bevel</span><strong id="right-bevel">--</strong></p>
+            <p class="miter-orientation">Saw Fence: Place BOTTOM against fence.</p>
+          </article>
+        </div>
+        <p class="miter-tip">Visual Guide: Miter Saw Table Orientation</p>
+        <div class="miter-diagram-grid">
+          <figure class="canvas-shell miter-canvas-shell miter-diagram-card">
+            <figcaption class="miter-diagram-title">Left Cut Setup</figcaption>
+            <svg
+              id="left-cut-preview"
+              viewBox="0 0 320 220"
+              role="img"
+              aria-label="Saw-table setup for the left side piece"
+            ></svg>
+          </figure>
+          <figure class="canvas-shell miter-canvas-shell miter-diagram-card">
+            <figcaption class="miter-diagram-title">Right Cut Setup</figcaption>
+            <svg
+              id="right-cut-preview"
+              viewBox="0 0 320 220"
+              role="img"
+              aria-label="Saw-table setup for the right side piece"
+            ></svg>
+          </figure>
+        </div>
+        <div class="miter-fence-notes" aria-label="Fence orientation instructions">
+          <p class="miter-fence-note left">Left Side Piece: Saw Fence: Place TOP against fence.</p>
+          <p class="miter-fence-note right">Right Side Piece: Saw Fence: Place BOTTOM against fence.</p>
+        </div>
+        <div class="miter-mini-wrap">
+          <p class="miter-mini-title">Final Wall Layout (Mini Check)</p>
+          <svg
+            id="wall-layout-preview"
+            viewBox="0 0 240 140"
+            role="img"
+            aria-label="Small final wall layout showing left and right pieces meeting at the corner"
+          ></svg>
+        </div>
+      </section>
+
+      <section class="card miter-affiliate" aria-labelledby="affiliate-title">
+        <h2 id="affiliate-title">Recommended Miter Saws &amp; Protractor</h2>
+        <p class="hint">Affiliate slider placeholder. Swap cards with live product widgets later.</p>
+        <div class="affiliate-slider" aria-label="Product slider placeholder">
+          <article class="affiliate-card">
+            <p class="affiliate-badge">Placeholder</p>
+            <h3>12 in Sliding Miter Saw</h3>
+            <p>High-capacity crosscuts with bevel stops and LED guide.</p>
+          </article>
+          <article class="affiliate-card">
+            <p class="affiliate-badge">Placeholder</p>
+            <h3>Digital Angle Finder</h3>
+            <p>Fast wall-angle readings to feed directly into this wizard.</p>
+          </article>
+          <article class="affiliate-card">
+            <p class="affiliate-badge">Placeholder</p>
+            <h3>Crown Molding Jig Kit</h3>
+            <p>Helps keep spring angle repeatable for compound cuts.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card quick-actions" aria-label="Quick actions">
+        <div class="icon-actions">
+          <button id="bookmark-btn" class="icon-btn" type="button" aria-label="Bookmark">
+            <img src="woodshop-wizard-bookmark-icon.svg" alt="" aria-hidden="true" />
+            <span>Bookmark</span>
+          </button>
+          <button id="share-btn" class="icon-btn" type="button" aria-label="Share">
+            <img src="woodshop-wizard-share-icon.svg" alt="" aria-hidden="true" />
+            <span>Share</span>
+          </button>
+          <button id="home-btn" class="icon-btn" type="button" aria-label="Add to Home Screen">
+            <img src="woodshop-wizard-add-to-home-icon.svg" alt="" aria-hidden="true" />
+            <span>Add to Home</span>
+          </button>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="./src/miter.js"></script>
+  </body>
+</html>
